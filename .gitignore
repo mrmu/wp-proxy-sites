@@ -1,0 +1,12 @@
+*
+!sample.env
+!docker-compose.yml
+!.gitignore
+
+!db
+db/*
+!db/.gitkeep
+
+!sites
+sites/*
+!sites/.gitkeep

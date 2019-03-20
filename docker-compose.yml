@@ -1,0 +1,102 @@
+version: '3'
+services:
+  db:
+    container_name: db
+    image: mariadb:latest
+    ports:
+        - '3306:3306'
+    restart: unless-stopped
+    volumes:
+        - ./db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+  # wp正式環境的參考設定
+  wp1:
+    depends_on:
+      - db
+      - redis
+    container_name: wp1
+    image: wordpress:5.1.1-php7.3
+    restart: unless-stopped
+    volumes:
+      - ./sites/wp1/wp-core:/var/www/html
+      - ./sites/wp1/wp-content:/var/www/html/wp-content
+      - ./sites/wp1/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      # - ./sites/wp1/apache2/sites-enabled:/etc/apache2/sites-enabled/
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wp1
+      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD} 
+      WORDPRESS_TABLE_PREFIX: wp1_
+      VIRTUAL_HOST: wp1.test
+      LETSENCRYPT_HOST: wp1.test
+      LETSENCRYPT_EMAIL: my@email.adds
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  redis:
+    restart: always
+    image: redis:latest
+    volumes:
+      - ./sites/wp1/redis:/data
+
+  # wp開發環境的參考設定
+  wp2:
+    depends_on:
+      - db
+      - mailcatcher
+    container_name: wp2
+    image: wordpress:5.1.1-php7.3
+    restart: unless-stopped
+    volumes:
+      - ./sites/wp2/wordpress-core:/var/www/html
+      - ./sites/wp2/wp-content:/var/www/html/wp-content
+      - ./sites/wp2/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      # - ./sites/wp2/apache2/sites-enabled:/etc/apache2/sites-enabled/
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wp2
+      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD} 
+      WORDPRESS_TABLE_PREFIX: wp2_
+      VIRTUAL_HOST: wp2.test
+      # LETSENCRYPT_HOST: wp2.test
+      # LETSENCRYPT_EMAIL: my@email.adds
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "10"
+
+  cli-for-wp2:
+    image: wordpress:cli
+    volumes:
+      - ./sites/wp2/wordpress-core:/var/www/html/
+
+  # 非 wp 的php網站設定
+  phpweb:
+    image: php:7.3-apache
+    container_name: phpweb
+    depends_on:
+      - db
+    volumes:
+      - ./sites/phpweb:/var/www/html/
+    environment:
+      VIRTUAL_HOST: phpweb.test
+    stdin_open: true
+    tty: true
+
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      MAILCATCHER_PORT: 1025
+
+networks:
+    default:
+      external:
+        name: wp-proxy
