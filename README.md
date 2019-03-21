@@ -15,7 +15,7 @@
 ### 安裝
 1. git clone 此 repo。
 2. 將 sample.env 另存成 .env。
-3. 修改裡面的db 設定。
+3. 修改 .env 裡面的db 設定。
 
 ### 開發流程說明
 
@@ -75,6 +75,13 @@ max_execution_time = 600
 ```
 修改好要 docker-compose down 再 docker-compose up -d --build 讓它套用設定。
 
+* 要分開管理開發環境及正式環境的 docker-compose.yml 設定，可依據用途建立多個 yml 檔，不會更動到的設定就放在  docker-compose.yml，假設我習慣在本機的容器設定不同，就把相關設定移到 docker-compose.local.yml；正式環境的設定就移動到 docker-compose.prod.yml。
+
+若是在正式環境要執行 docker-compose up，就可以這樣下指令：
+```
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
 ### 其他工具
 
 * PHP Composer：可以在容器外使用，也可以啟用一個 composer 容器，就像 docker-compose.yml 範例裡註解的一樣，要執行它可下：
@@ -115,4 +122,18 @@ docker-compose up -d --force-recreate
 * 查看所有 docker network
 ```
 docker network ls
+```
+
+### 備份
+
+#### Local Database Backup
+Here's how to dump your local database with Docker into a .sql file
+```
+docker exec -it db /usr/bin/mysqldump -u username -ppassword database_name > backup.sql
+```
+
+#### Local Database Restore
+Restore a previous database backup
+```
+docker exec -i db /usr/bin/mysql -u username -ppassword database_name < backup.sql
 ```
