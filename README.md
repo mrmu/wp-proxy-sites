@@ -1,9 +1,9 @@
-#WP Proxy Sites - Dockerize Multiple WordPress Sites
+# WP Proxy Sites - Dockerize Multiple WordPress Sites
 
 ### 特點
 * 啟用多個 WordPress 和 非 WordPress 網站容器，再讓它們共用一個 DB 容器。另外還可搭配 Redis、MailCatcher、WP-Cli 等容器服務。
 
-* 請注意，本 Repo 需要先使用：wp proxy companion 建立 Nginx Proxy 之後，才能正常使用。
+* 請注意，本 Repo 需要先使用：wp proxy companion (https://github.com/mrmu/wp-proxy-companion) 建立 Nginx Proxy 之後，才能正常使用。
 
 ### 使用容器
 * MariaDB
