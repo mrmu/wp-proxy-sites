@@ -74,3 +74,45 @@ post_max_size = 64M
 max_execution_time = 600
 ```
 修改好要 docker-compose down 再 docker-compose up -d --build 讓它套用設定。
+
+### 其他工具
+
+* PHP Composer：可以在容器外使用，也可以啟用一個 composer 容器，就像 docker-compose.yml 範例裡註解的一樣，要執行它可下：
+```
+docker-compose run wp2-composer update
+```
+
+* Git：因為網站目錄已透過 volumn 設定 mapping 到容器外部了，所以只要在外部使用 Git 即可。
+
+* Node.js：會用到 Node.js 通常是前端需要套件管理工具，如：Webpack, Gulp ...等，因為佈景目錄已透過 volumn 設定 mapping 到容器外部，所以在外部執行即可。
+
+### 常用指令
+
+* 查看目前所有的容器
+```
+docker ps -a
+```
+* 停止容器
+```
+docker stop [容器名]
+```
+* 移除容器
+```
+docker rm [容器名]
+```
+* 停止 docker-compose.yml 裡所有容器 (但沒有移除)
+```
+docker-compose stop
+```
+* 停止 docker-compose.yml 裡所有容器並且移除
+```
+docker-compose down
+```
+* 強制重新建立 docker-compose.yml 裡的容器
+```
+docker-compose up -d --force-recreate
+```
+* 查看所有 docker network
+```
+docker network ls
+```

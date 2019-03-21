@@ -48,7 +48,6 @@ services:
   wp2:
     depends_on:
       - db
-      - mailcatcher
     container_name: wp2
     image: wordpress:5.1.1-php7.3
     restart: unless-stopped
@@ -74,6 +73,14 @@ services:
     image: wordpress:cli
     volumes:
       - ./sites/wp2/wordpress-core:/var/www/html/
+
+  # composer:
+  #   image: composer/composer
+  #   container_name: wp2-composer
+  #   working_dir: /var/www/html
+  #   restart: "no"
+  #   volumes:
+  #     - ./sites/wp2/wordpress-core:/var/www/html:rw,cached
 
   # 非 wp 的php網站設定
   phpweb:
