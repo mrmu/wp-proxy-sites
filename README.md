@@ -77,14 +77,23 @@ max_execution_time = 600
 
 * 要分開管理開發環境及正式環境的 docker-compose.yml 設定，可依據用途建立多個 yml 檔，不會更動到的設定就放在  docker-compose.yml，假設我習慣在本機的容器設定不同，就把相關設定移到 docker-compose.local.yml；正式環境的設定就移動到 docker-compose.prod.yml。
 
-若是在正式環境要執行 docker-compose up，就可以這樣下指令：
+若是在本機環境要執行 docker-compose up，就可以這樣下指令：
 ```
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d
+```
+docker down 也是比照辦理：
+```
+docker-compose -f docker-compose.yml -f docker-compose.local.yml down
+```
+
+* 如果更新或新增了 docker-compose.yml (或 prod.yml, local.yml 都一樣) 裡的容器服務設定，但不要整個全部 down 再 up (Downtime 時間長)，可下指令 (以本機為例)：
+```
+docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --no-deps --build 容器名稱
 ```
 
 ### 其他工具
 
-* PHP Composer：可以在容器外使用，也可以啟用一個 composer 容器，就像 docker-compose.yml 範例裡註解的一樣，要執行它可下：
+* PHP Composer：可以在容器外使用，也可以啟用一個 composer 容器，就像 docker-compose.yml 範例裡註解的一樣，要執行它可取消註解，並且下指令 (這樣做沒有比較方便，所以用習慣的方式就好XD)：
 ```
 docker-compose run wp2-composer update
 ```
