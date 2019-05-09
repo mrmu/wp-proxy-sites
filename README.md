@@ -13,13 +13,15 @@
 * WP-Cli
 
 ### 安裝
-1. git clone 此 repo。
-2. 將 sample.env 另存成 .env。
+1. 先安裝好 Docker 和 Docker Compose
+2. 找個目錄存放本設定和網站相關檔案，假設為 /Users/xxxx/，進入該目錄後 git clone 此 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
+3. 到這步 /Users/xxxx/ 會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
+4. 將 /wp-proxy-sites/sample.env 另存成 .env。
 3. 修改 .env 裡面的db 設定。
 
 ### 開發流程說明
 
-1. 確認已先建立 wp-proxy network 並啟用 wp proxy companion  (參考說明)
+1. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
 2. 建立網域指向
 
 ##### 正式環境
