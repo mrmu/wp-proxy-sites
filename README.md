@@ -75,17 +75,17 @@
 	5. redis: 底下的 volume: 要改為你的 WP 容器對應到的目錄。
 	6. 把你不需要的容器設定註解掉或刪掉，這樣就完成 docker-compose.yml 的設定，下一步我們要開始啟動容器了。
 
-3. 啟用本repo的 docker-compose.yml，在 wp-proxy-sites/ 下執行：
+5. 啟用本repo的 docker-compose.yml，在 wp-proxy-sites/ 下執行：
     ```
     docker-compose up -d --build
     ```
-若是第一次使用，建議你docker-compose up 不要加-d，可以觀察一下執行過程中有沒有發生問題，只要 Ctrl+c 就能離開，再下 docker-compose down 關掉所有 container，就可以重新下 up 指令。(註：docker-compose down 和 up 都要在 .yml 同目錄下執行才能針對該設定生效)
+    若是第一次使用，建議你docker-compose up 不要加-d，可以觀察一下執行過程中有沒有發生問題，只要 Ctrl+c 就能離開，再下 docker-compose down 關掉所有 container，就可以重新下 up 指令。(註：docker-compose down 和 up 都要在 .yml 同目錄下執行才能針對該設定生效)
 
-4. 第一次啟用時間會比較長，因為要下載各個 docker image 並啟用。
+6. 第一次啟用時間會比較長，因為要下載各個 docker image 並啟用。
 
-5. 跑完若一切正常，執行 docker ps -a 就會看到所有運行起來的容器了。而此時在瀏覽器輸入網址，就能看到 wp 的安裝畫面了。
+7. 跑完若一切正常，執行 docker ps -a 就會看到所有運行起來的容器了。而此時在瀏覽器輸入網址，就能看到 wp 的安裝畫面了。
 
-6. 之後要再增加其他容器 (比如網站容器)，只要再編修 docker-compose.yml 存檔後，再啟用該容器即可，要怎麼增加其他容器的設定可以參考下面的說明。
+8. 之後要再增加其他容器 (比如網站容器)，只要再編修 docker-compose.yml 存檔後，再啟用該容器即可，要怎麼增加其他容器的設定可以參考下面的說明。
 
 ### docker-compose.sample.yml 容器設定說明
 
