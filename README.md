@@ -65,7 +65,7 @@
 	```
 	再打開 docker-compose.yml 修改。範例中對應的容器是 wp1，可以修改的部份：
 	1. 把 wp1 和 container_name 改為你要的網站代稱。 
-	2. image: 範例要安裝的是 wordpress 官方的 docker image (除了 wp 這個容器也自帶了 php7.3 和 apache)，你可以修改成你要的 image 版本。
+	2. image: 範例要安裝的是 [WordPress 官方的 docker image](https://hub.docker.com/_/wordpress/) (除了 wp 這個容器也自帶了 php7.3 和 apache)，你可以修改成你要的 image 版本。
 	3. volumes: 把容器裡主要的目錄對應到指定的目錄，裡面的 wp1 也可修改成你要的代稱。
 	4. environment:
     	1. WORDPRESS_DB_NAME: wp容器要使用的資料庫名稱。
@@ -91,11 +91,13 @@
 
 * db: 定義一個資料庫容器(mariadb)，這會讓後面 3 個網站容器共用。db 容器是一定要存在的，其他的容器則是依使用狀況增減修改。
 
-* wp1: 定義一個官方的 WordPress 容器 (本身自帶 apache 和 php)，是故意寫的比較像正式環境的設定，所以會使用到 db 和 redis 這兩個容器的服務。它定義了 VIRTUAL_HOST: wp1.test，表示會讓佔用 80 /443 port的 wp proxy companion 以 Nginx 的反向代理設定導至此 wp1 容器的 apache。另外還設定了 LETSENCRYPT_HOST: wp1.test 及 LETSENCRYPT_EMAIL: my@email.adds，這會讓 wp proxy companion 幫忙申請 Let's encrypt 憑證並以 docker-gen 產生 nginx 反向代理的設定，再自動套用，但網域必須是真正指向主機IP的，所以本機測試不會成功。
+* wp1: 定義一個官方的 WordPress 容器 (本身自帶 apache 和 php)，是故意寫的比較像正式環境的設定，所以會使用到 db 和 redis 這兩個容器的服務。它定義了：
+    VIRTUAL_HOST: wp1.test，表示會讓佔用 80 /443 port的 wp proxy companion 以 Nginx 的反向代理設定導至此 wp1 容器的 apache。
+    LETSENCRYPT_HOST 及 LETSENCRYPT_EMAIL: 這會讓 wp proxy companion 幫忙申請 Let's encrypt 憑證並以 docker-gen 產生 nginx 反向代理的設定，再自動套用，但網域必須是真正指向主機IP的，所以本機測試不會成功。
 
 * redis: 做為 redis server 的容器。wp1 要使用 redis，還須要額外安裝 Redis Object Cache 這個 WP 外掛，要設定連結的 redis host，就寫 redis 的 container name 即可 (本repo裡的設定就叫 redis)。
 
-* wp2: 一樣是定義一個官方的 Wordpress 容器，這邊故意寫的比較像本機的設定，會使用到 db 和 mailcatcher。這個容器就只定義了 VIRTUAL_HOST。
+* wp2: 一樣是定義一個官方的 WordPress 容器，這邊故意寫的比較像本機的設定，會使用到 db 和 mailcatcher。這個容器就只定義了 VIRTUAL_HOST。
 
 * cli-for-wp2: 定義一個 wp-cli 容器指定給 wp2 使用。使用方式如下：
 下指令進入cli的bash：
@@ -106,7 +108,7 @@
 
 * phpweb: 這裡定義了第三個網站容器，但它不是 wp，就只是一般的 php+apache。它的 volumn 是對應到本機的 ./app/sites/phpweb，所以如果這裡沒有東西，瀏覽 phpweb.test 會出現 Forbidden。
 
-* mailcatcher: 這個容器會幫忙攔下網站發出的信件，只要用瀏覽器開 1080 port 就可以看見web mail 的介面，裡頭就會有信件，對於測試信件的情境 (不讓它真的被寄出) 很方便。
+* mailcatcher: 主要用於開發環境，這個容器會幫忙攔下網站發出的信件，只要用瀏覽器開 1080 port 就可以看見web mail 的介面，裡頭就會有信件，對於測試信件的情境 (不讓它真的被寄出) 很方便。
 
 * 最後定義了一個外部的 docker network 叫 wp-proxy，也就是與 wp proxy companion 連線的設定。
 
