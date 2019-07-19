@@ -1,6 +1,6 @@
 *
 !sample.env
-!docker-compose.yml
+!docker-compose.sample.yml
 !.gitignore
 !README.md
 

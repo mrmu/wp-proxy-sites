@@ -14,41 +14,86 @@
 
 ### 安裝
 1. 先安裝好 Docker 和 Docker Compose
-2. 找個目錄存放本設定和網站相關檔案，假設為 /Users/xxxx/，進入該目錄後 git clone 此 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
-3. 到這步 /Users/xxxx/ 會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
+```
+sudo apt-get update
+sudo apt install docker.io
+```
+啟用 docker
+```
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+裝 curl 
+```
+sudo apt install curl
+```
+裝 docker-compose
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+將自己的帳號加入 docker 群組，從此下指令就不加 sudo (下完指令下次登入後生效)：
+```
+sudo usermod -a -G docker 你的帳號
+```
+
+2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，進入該目錄後 git clone 此 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
+	```
+	git clone https://github.com/mrmu/wp-proxy-companion.git
+	```
+3. 到這裡，你選定的目錄下會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
 4. 將 /wp-proxy-sites/sample.env 另存成 .env。
-3. 修改 .env 裡面的db 設定。
+	```
+	sudo cp sample.env .env
+	```
+5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 Root 密碼及資料庫名稱，之後會成為 mySQL DB 容器的設定值，不過後續的 WP 容器只會使用到 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
+
 
 ### 開發流程說明
 
-1. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
-2. 建立網域指向
-
-##### 正式環境
-把你在 docker-compose.yml 裡設定的 VIRTUAL_HOST 網域 DNS 指向正式主機的IP。
-
-##### 本機開發
-把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.yml 為例，會建立3個網站容器，網域設定如下：
+1. 如果你是第一次使用，建議把目標放在「先完成一個可運作的簡單 WP 網站」，之後就會覺得設定其實不複雜。
+2. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
+3. 建立網域指向：雖然現在 docker 還沒起來，不過先把網址指到目前這台主機，若是正式環境請建立 DNS A 指向；若是本機開發就把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.sample.yml 為例，若要建立3個網站容器，網域設定如下：
 ```
 127.0.0.1       wp1.test
 127.0.0.1       wp2.test
 127.0.0.1       phpweb.test
 ```
-3. 啟用本repo的 docker-compose.yml
+4. 開始設定 WP 網站容器，將 docker-compose.sample.yml 另存為 docker-compose.yml：
+	```
+	sudo cp docker-compose.sample.yml docker-compose.yml
+	```
+	再打開 docker-compose.yml 修改。範例中對應的容器是 wp1，可以修改的部份：
+	1. 把 wp1 和 container_name 改為你要的網站代稱。 
+	2. image: 範例要安裝的是 wordpress 官方的 docker image (除了 wp 這個容器也自帶了 php7.3 和 apache)，你可以修改成你要的 image 版本。
+	3. volumes: 把容器裡主要的目錄對應到指定的目錄，裡面的 wp1 也可修改成你要的代稱。
+	4. environment:
+    	1. WORDPRESS_DB_NAME: wp容器要使用的資料庫名稱。
+    	2. VIRTUAL_HOST：改為你要使用的網域。(必填，有個 docker-gen 容器會以此來產生對應的 nginx 設定檔)
+    	3. LETSENCRYPT_HOST: 設定此項會自動申請套用 SSL 憑證，改為你要使用的網域。(<strong>注意，由於疑似 docker-gen 的bug，第一次跑建議先注解掉，不然 nginx/default.conf 產生不出來會使網站連不上。若要設定 https 先等 http 版成功運行後再設定</strong>)
+    	4. LETSENCRYPT_EMAIL: 改為你要用於申請 SSL 憑證的E-mail。
+	5. redis: 底下的 volume: 要改為你的 WP 容器對應到的目錄。
+	6. 把你不需要的容器設定註解掉或刪掉，這樣就完成 docker-compose.yml 的設定，下一步我們要開始啟動容器了。
+
+3. 啟用本repo的 docker-compose.yml，在 wp-proxy-sites/ 下執行：
 ```
 docker-compose up -d --build
 ```
-若是第一次使用，建議你docker-compose up 不要加-d，可以觀察一下執行過程中有沒有發生問題，只要 Ctrl+c 就能離開，再下 docker-compose down 關掉所有 container，就可以重新下 up 指令。
+若是第一次使用，建議你docker-compose up 不要加-d，可以觀察一下執行過程中有沒有發生問題，只要 Ctrl+c 就能離開，再下 docker-compose down 關掉所有 container，就可以重新下 up 指令。(註：docker-compose down 和 up 都要在 .yml 同目錄下執行才能針對該設定生效)
 
-4. 此時若一切正常，在瀏覽器輸入網址，就能看到 wp 的安裝畫面了。
+4. 第一次啟用時間會比較長，因為要下載各個 docker image 並啟用。
 
-### docker-compose.yml 容器設定說明
+5. 跑完若一切正常，執行 docker ps -a 就會看到所有運行起來的容器了。而此時在瀏覽器輸入網址，就能看到 wp 的安裝畫面了。
+
+6. 之後要再增加其他容器 (比如網站容器)，只要再編修 docker-compose.yml 存檔後，再啟用該容器即可，要怎麼增加其他容器的設定可以參考下面的說明。
+
+### docker-compose.sample.yml 容器設定說明
 
 * db: 定義一個資料庫容器(mariadb)，這會讓後面 3 個網站容器共用。db 容器是一定要存在的，其他的容器則是依使用狀況增減修改。
 
 * wp1: 定義一個官方的 WordPress 容器 (本身自帶 apache 和 php)，是故意寫的比較像正式環境的設定，所以會使用到 db 和 redis 這兩個容器的服務。它定義了 VIRTUAL_HOST: wp1.test，表示會讓佔用 80 /443 port的 wp proxy companion 以 Nginx 的反向代理設定導至此 wp1 容器的 apache。另外還設定了 LETSENCRYPT_HOST: wp1.test 及 LETSENCRYPT_EMAIL: my@email.adds，這會讓 wp proxy companion 幫忙申請 Let's encrypt 憑證並以 docker-gen 產生 nginx 反向代理的設定，再自動套用，但網域必須是真正指向主機IP的，所以本機測試不會成功。
 
-* redis: 做為 redis server 的容器。wp1 要使用 redis，還須要額外安裝 Redis Object Cache 這個外掛，要設定連結的 redis host，就寫 redis 的 container name 即可 (本repo裡的設定就叫 redis)。
+* redis: 做為 redis server 的容器。wp1 要使用 redis，還須要額外安裝 Redis Object Cache 這個 WP 外掛，要設定連結的 redis host，就寫 redis 的 container name 即可 (本repo裡的設定就叫 redis)。
 
 * wp2: 一樣是定義一個官方的 Wordpress 容器，這邊故意寫的比較像本機的設定，會使用到 db 和 mailcatcher。這個容器就只定義了 VIRTUAL_HOST。
 
@@ -140,11 +185,11 @@ docker network ls
 #### Local Database Backup
 Here's how to dump your local database with Docker into a .sql file
 ```
-docker exec -it db /usr/bin/mysqldump -u username -ppassword database_name > backup.sql
+docker exec -it db /usr/bin/mysqldump --default-character-set=utf8mb4 --hex-blob -u root -p{root_password} {database_name} > backup.sql
 ```
 
 #### Local Database Restore
 Restore a previous database backup
 ```
-docker exec -i db /usr/bin/mysql -u username -ppassword database_name < backup.sql
+docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < backup.sql
 ```

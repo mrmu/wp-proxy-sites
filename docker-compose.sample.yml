@@ -18,7 +18,7 @@ services:
       - db
       - redis
     container_name: wp1
-    image: wordpress:5.1.1-php7.3
+    image: wordpress:5.2.2-php7.3
     restart: unless-stopped
     volumes:
       - ./sites/wp1/wordpress:/var/www/html
@@ -48,7 +48,7 @@ services:
     depends_on:
       - db
     container_name: wp2
-    image: wordpress:5.1.1-php7.3
+    image: wordpress:5.2.2-php7.3
     restart: unless-stopped
     volumes:
       - ./sites/wp2/wordpress:/var/www/html
