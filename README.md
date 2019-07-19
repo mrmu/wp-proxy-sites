@@ -13,39 +13,39 @@
 * WP-Cli
 
 ### 安裝
-1. 先安裝好 Docker 和 Docker Compose
-```
-sudo apt-get update
-sudo apt install docker.io
-```
-啟用 docker
-```
-sudo systemctl start docker
-sudo systemctl enable docker
-```
-裝 curl 
-```
-sudo apt install curl
-```
-裝 docker-compose
-```
-sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-```
-將自己的帳號加入 docker 群組，從此下指令就不加 sudo (下完指令下次登入後生效)：
-```
-sudo usermod -a -G docker 你的帳號
-```
-
+1. 先安裝好該安裝的東西，若已安裝可跳過：
+    * 安裝 Docker 和 Docker Compose
+    ```
+    sudo apt-get update
+    sudo apt install docker.io
+    ```
+    * 啟用 docker
+    ```
+    sudo systemctl start docker
+    sudo systemctl enable docker
+    ```
+    * 安裝 curl 
+    ```
+    sudo apt install curl
+    ```
+    * 安裝 docker-compose
+    ```
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    ```
+    * 將自己的帳號加入 docker 群組，從此下指令就不加 sudo (下完指令下次登入後生效)：
+    ```
+    sudo usermod -a -G docker 你的帳號
+    ```
 2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，進入該目錄後 git clone 此 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
-	```
-	git clone https://github.com/mrmu/wp-proxy-companion.git
-	```
+    ```
+    git clone https://github.com/mrmu/wp-proxy-companion.git
+    ```
 3. 到這裡，你選定的目錄下會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
 4. 將 /wp-proxy-sites/sample.env 另存成 .env。
-	```
-	sudo cp sample.env .env
-	```
+    ```
+    sudo cp sample.env .env
+    ```
 5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 Root 密碼及資料庫名稱，之後會成為 mySQL DB 容器的設定值，不過後續的 WP 容器只會使用到 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
 
 
@@ -54,11 +54,11 @@ sudo usermod -a -G docker 你的帳號
 1. 如果你是第一次使用，建議把目標放在「先完成一個可運作的簡單 WP 網站」，之後就會覺得設定其實不複雜。
 2. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
 3. 建立網域指向：雖然現在 docker 還沒起來，不過先把網址指到目前這台主機，若是正式環境請建立 DNS A 指向；若是本機開發就把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.sample.yml 為例，若要建立3個網站容器，網域設定如下：
-```
-127.0.0.1       wp1.test
-127.0.0.1       wp2.test
-127.0.0.1       phpweb.test
-```
+    ```
+    127.0.0.1       wp1.test
+    127.0.0.1       wp2.test
+    127.0.0.1       phpweb.test
+    ```
 4. 開始設定 WP 網站容器，將 docker-compose.sample.yml 另存為 docker-compose.yml：
 	```
 	sudo cp docker-compose.sample.yml docker-compose.yml
@@ -76,9 +76,9 @@ sudo usermod -a -G docker 你的帳號
 	6. 把你不需要的容器設定註解掉或刪掉，這樣就完成 docker-compose.yml 的設定，下一步我們要開始啟動容器了。
 
 3. 啟用本repo的 docker-compose.yml，在 wp-proxy-sites/ 下執行：
-```
-docker-compose up -d --build
-```
+    ```
+    docker-compose up -d --build
+    ```
 若是第一次使用，建議你docker-compose up 不要加-d，可以觀察一下執行過程中有沒有發生問題，只要 Ctrl+c 就能離開，再下 docker-compose down 關掉所有 container，就可以重新下 up 指令。(註：docker-compose down 和 up 都要在 .yml 同目錄下執行才能針對該設定生效)
 
 4. 第一次啟用時間會比較長，因為要下載各個 docker image 並啟用。
@@ -99,9 +99,9 @@ docker-compose up -d --build
 
 * cli-for-wp2: 定義一個 wp-cli 容器指定給 wp2 使用。使用方式如下：
 下指令進入cli的bash：
-```
-docker-compose run --rm cli-for-wp2 bash
-```
+    ```
+    docker-compose run --rm cli-for-wp2 bash
+    ```
 這樣就會進入wp目錄，並且可以下wp-cli 指令。
 
 * phpweb: 這裡定義了第三個網站容器，但它不是 wp，就只是一般的 php+apache。它的 volumn 是對應到本機的 ./app/sites/phpweb，所以如果這裡沒有東西，瀏覽 phpweb.test 會出現 Forbidden。
@@ -113,13 +113,13 @@ docker-compose run --rm cli-for-wp2 bash
 ### 其他說明
 
 * 關於wp 容器裡 volume 有個 conf.d/uploads.ini 的設定，如果沒有預先建立好 uploads.ini，docker 會建立一個空目錄叫 uploads.ini，可以把這個空目錄刪除，再建立一個真的 uploads.ini 來改變上傳檔案的限制，參考內容如下：
-```
-file_uploads = On
-memory_limit = 64M
-upload_max_filesize = 64M
-post_max_size = 64M
-max_execution_time = 600
-```
+    ```
+    file_uploads = On
+    memory_limit = 64M
+    upload_max_filesize = 64M
+    post_max_size = 64M
+    max_execution_time = 600
+    ```
 修改好要 docker-compose down 再 docker-compose up -d --build 讓它套用設定。
 
 * 要分開管理開發環境及正式環境的 docker-compose.yml 設定，可依據用途建立多個 yml 檔，不會更動到的設定就放在  docker-compose.yml，假設我習慣在本機的容器設定不同，就把相關設定移到 docker-compose.local.yml；正式環境的設定就移動到 docker-compose.prod.yml。
