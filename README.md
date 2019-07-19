@@ -1,5 +1,7 @@
 # WP Proxy Sites - Dockerize Multiple WordPress Sites
 
+<img width="1434" alt="wp-proxy-scope" src="https://user-images.githubusercontent.com/271049/61531755-5ddc2d80-aa5a-11e9-9383-ac099f4eb3a6.png">
+
 ### 特點
 * 啟用多個 WordPress 和 非 WordPress 網站容器，再讓它們共用一個 DB 容器。另外還可搭配 Redis、MailCatcher、WP-Cli 等容器服務。
 
