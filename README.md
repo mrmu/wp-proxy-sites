@@ -184,14 +184,14 @@ docker network ls
 
 ### 備份
 
-#### Local Database Backup
-Here's how to dump your local database with Docker into a .sql file
+#### 資料庫備份
+執行 db 容器內的 mysqldump 將資料倒到 .sql (配合utf8mb4語系)
 ```
 docker exec -it db /usr/bin/mysqldump --default-character-set=utf8mb4 --hex-blob -u root -p{root_password} {database_name} > backup.sql
 ```
 
-#### Local Database Restore
-Restore a previous database backup
+#### 資料庫還原
+將 .sql 還原至 db 容器內的 mysql
 ```
 docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < backup.sql
 ```
