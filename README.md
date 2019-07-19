@@ -13,33 +13,10 @@
 * WP-Cli
 
 ### 安裝
-1. 先安裝好該安裝的東西，若已安裝可跳過：
-    * 安裝 Docker 和 Docker Compose
+1. 確認已安裝並運行 [WP Proxy Companion]((https://github.com/mrmu/wp-proxy-companion))
+2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，建議可以和 WP Proxy Companion 放在同目錄。進入該目錄後 git clone 本 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
     ```
-    sudo apt-get update
-    sudo apt install docker.io
-    ```
-    * 啟用 docker
-    ```
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    ```
-    * 安裝 curl 
-    ```
-    sudo apt install curl
-    ```
-    * 安裝 docker-compose
-    ```
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    ```
-    * 將自己的帳號加入 docker 群組，從此下指令就不加 sudo (下完指令下次登入後生效)：
-    ```
-    sudo usermod -a -G docker 你的帳號
-    ```
-2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，進入該目錄後 git clone 此 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
-    ```
-    git clone https://github.com/mrmu/wp-proxy-companion.git
+    git clone https://github.com/mrmu/wp-proxy-sites.git
     ```
 3. 到這裡，你選定的目錄下會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
 4. 將 /wp-proxy-sites/sample.env 另存成 .env。
@@ -70,7 +47,7 @@
 	4. environment:
     	1. WORDPRESS_DB_NAME: wp容器要使用的資料庫名稱。
     	2. VIRTUAL_HOST：改為你要使用的網域。(必填，有個 docker-gen 容器會以此來產生對應的 nginx 設定檔)
-    	3. LETSENCRYPT_HOST: 設定此項會自動申請套用 SSL 憑證，改為你要使用的網域。(<strong>注意，由於疑似 docker-gen 的bug，第一次跑建議先注解掉，不然 nginx/default.conf 產生不出來會使網站連不上。若要設定 https 先等 http 版成功運行後再設定</strong>)
+    	3. LETSENCRYPT_HOST: 設定此項會自動申請套用 SSL 憑證，改為你要使用的網域。(<strong>注意，第一次跑請先注解掉，要先讓 http 版本網站上線，不然 Let's Encrypt 的 ACME challenge 無法得知你的 http 網站存在，就發不出憑證。</strong>)
     	4. LETSENCRYPT_EMAIL: 改為你要用於申請 SSL 憑證的E-mail。
 	5. redis: 底下的 volume: 要改為你的 WP 容器對應到的目錄。
 	6. 把你不需要的容器設定註解掉或刪掉，這樣就完成 docker-compose.yml 的設定，下一步我們要開始啟動容器了。
