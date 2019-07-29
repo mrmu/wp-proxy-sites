@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./sites/wp1/wordpress:/var/www/html
-      - ./sites/wp1/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      # - ./sites/wp1/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
       # - ./sites/wp1/apache2/sites-enabled:/etc/apache2/sites-enabled/
     environment:
       WORDPRESS_DB_HOST: db:3306
@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./sites/wp2/wordpress:/var/www/html
-      - ./sites/wp2/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      # - ./sites/wp2/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
       # - ./sites/wp2/apache2/sites-enabled:/etc/apache2/sites-enabled/
     environment:
       WORDPRESS_DB_HOST: db:3306

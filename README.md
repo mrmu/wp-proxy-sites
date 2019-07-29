@@ -25,7 +25,7 @@
     ```
     sudo cp sample.env .env
     ```
-5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 Root 密碼及資料庫名稱，之後會成為 mySQL DB 容器的設定值，不過後續的 WP 容器只會使用到 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
+5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 Root 密碼及資料庫名稱，之後會成為 mySQL DB 容器的設定值。不過後續的 WP 容器只會使用到 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
 
 
 ### 開發流程說明
@@ -72,7 +72,7 @@
 
 * wp1: 定義一個官方的 WordPress 容器 (本身自帶 apache 和 php)，是故意寫的比較像正式環境的設定，所以會使用到 db 和 redis 這兩個容器的服務。它定義了：
     VIRTUAL_HOST: wp1.test，表示會讓佔用 80 /443 port的 wp proxy companion 以 Nginx 的反向代理設定導至此 wp1 容器的 apache。
-    LETSENCRYPT_HOST 及 LETSENCRYPT_EMAIL: 這會讓 wp proxy companion 幫忙申請 Let's encrypt 憑證並以 docker-gen 產生 nginx 反向代理的設定，再自動套用，但網域必須是真正指向主機IP的，所以本機測試不會成功。
+    LETSENCRYPT_HOST 及 LETSENCRYPT_EMAIL: 這會讓 wp proxy companion 幫忙申請 Let's encrypt 憑證並以 docker-gen 產生 nginx 反向代理的設定，再自動套用，但網域必須是真正指向主機IP的，所以本機測試不會成功。(請先讓 http 版本網站上線，再設定這兩項，才能正確通過 challenge 取得憑證，請參考 wp proxy companion 的說明)
 
 * redis: 做為 redis server 的容器。wp1 要使用 redis，還須要額外安裝 Redis Object Cache 這個 WP 外掛，要設定連結的 redis host，就寫 redis 的 container name 即可 (本repo裡的設定就叫 redis)。
 
@@ -93,15 +93,23 @@
 
 ### 其他說明
 
-* 關於wp 容器裡 volume 有個 conf.d/uploads.ini 的設定，如果沒有預先建立好 uploads.ini，docker 會建立一個空目錄叫 uploads.ini，可以把這個空目錄刪除，再建立一個真的 uploads.ini 來改變上傳檔案的限制，參考內容如下：
-    ```
-    file_uploads = On
-    memory_limit = 64M
-    upload_max_filesize = 64M
-    post_max_size = 64M
-    max_execution_time = 600
-    ```
-修改好要 docker-compose down 再 docker-compose up -d --build 讓它套用設定。
+* 關於改變 php.ini 的設定部份有兩種方式：
+    1. 增加 uploads.ini：wp 容器裡 volume 有個 conf.d/uploads.ini 的設定 (已註解掉)，如果沒有預先建立好 uploads.ini，docker 會建立一個空目錄叫 uploads.ini，可以把這個空目錄刪除，再建立一個真的 uploads.ini 來改變上傳檔案的限制，參考內容如下：
+        ```
+        file_uploads = On
+        memory_limit = 256M
+        upload_max_filesize = 64M
+        post_max_size = 64M
+        max_execution_time = 600
+        ```
+    修改好要 docker-compose down 再 docker-compose up -d --build 讓它套用設定。
+    2. 修改 .htaccess，加入：
+        ````
+        php_value post_max_size 64M
+        php_value upload_max_filesize 64M
+        php_value max_execution_time 600
+        php_value memory_limit 256M
+        ````
 
 * 要分開管理開發環境及正式環境的 docker-compose.yml 設定，可依據用途建立多個 yml 檔，不會更動到的設定就放在  docker-compose.yml，假設我習慣在本機的容器設定不同，就把相關設定移到 docker-compose.local.yml；正式環境的設定就移動到 docker-compose.prod.yml。
 
@@ -117,6 +125,19 @@ docker-compose -f docker-compose.yml -f docker-compose.local.yml down
 * 如果更新或新增了 docker-compose.yml (或 prod.yml, local.yml 都一樣) 裡的容器服務設定，但不要整個全部 down 再 up (Downtime 時間長)，可下指令 (以本機為例)：
 ```
 docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --no-deps --build 容器名稱
+```
+
+* 要變更現有WP容器的PHP版本，可以修改 Image 來源，比如 wordpress:5.2.2-php7.3 改為 wordpress:5.0.1-php5.6，再重啟容器即可生效，WP 目錄下的檔案都不會更動。也因為 WP 目錄下的檔案都不會更動到，所以 wp 版本不會因此降到 5.0.1，除非是第一次運行，才會下載 WP 5.0.1 的檔案。
+
+* WP 底下目錄和檔案的權限設定，以目錄 755 及檔案 644 為建議，指令如下：
+```
+sudo find ./目標目錄 -type d -print0 | xargs -0 sudo chmod 0755
+sudo find ./目標目錄 -type f -print0 | xargs -0 sudo chmod 0644
+```
+或
+```
+sudo find ./目標目錄 -type d -exec chmod 0755 {} \;
+sudo find ./目標目錄 -type f -exec chmod 0664 {} \;
 ```
 
 ### 其他工具
@@ -160,6 +181,14 @@ docker-compose up -d --force-recreate
 ```
 docker network ls
 ```
+* 查看 db 容器的密碼及相關資訊
+```
+docker exec db容器名稱 env
+```
+* 執行 db 容器內的 mysql 指令
+```
+docker exec -it db容器名稱 mysql -uroot -p
+```
 
 ### 備份
 
@@ -174,3 +203,25 @@ docker exec -it db /usr/bin/mysqldump --default-character-set=utf8mb4 --hex-blob
 ```
 docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < backup.sql
 ```
+
+### 其他資源
+* #.htaccess ref: https://gist.github.com/HechtMediaArts/c96bc796764baaa64d43b70731013f8a
+
+### 搬家示例 Migration
+
+1. 打包好 wp-content (如 wp-content.tar.gz) 移到新機，資料庫 (如 db.sql.gz) 也備份好。
+2. 編輯 /wp-proxy-sites/docker-compose.yml，建立網站容器的設定，先不加 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
+3. 把網站容器跑起來：
+    ```
+	docker-compose up -d --no-deps --build 網站容器名
+    ```
+	到這裡，新的網站目錄和新的WP檔案會被建立起來，nginx proxy 設定 (wp-proxy-companion/nginx/conf.d/default)也會準備好，對應的資料庫也會被建立 (但還是空的)
+4. 把之前打包好的 wp-content 和 資料庫都裝好，要先建立 http 版本，所以要注意資料庫的網址。
+5. 把網址指到新的IP，生效後瀏覽器應該看得到正常運行的新網站 (http)。(注意，若本來就是 HTTPS 版本的 WP 網站，這時會發生 500，因為還沒有對應的 nginx 設定及 SSL 憑證)
+7. 開始裝SSL憑證，打開 /wp-proxy-sites/docker-compose.yml，幫新的網站容器加上 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
+8. 重跑網站容器：
+    ```
+	docker-compose up -d --no-deps --build 網站容器名
+    ```
+	到這裡，等個5~30秒 (也可以查看一下 wp-proxy-letsencrypt 容器的 log，看它有沒有在運作，若等不及可以 restart 它，讓它重跑檢查)，檢查 /wp-proxy-companion/nginx/certs 目錄下有沒有對應網域的憑證檔，若有的話，就表示憑證已安裝成功了。
+9. 瀏覽器重整一下，應該看得到正常運行的新網站 (https)，資料庫裡的連結應該都還是 http，可以取代成 https。
