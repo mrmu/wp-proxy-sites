@@ -11,3 +11,7 @@ db/*
 !sites
 sites/*
 !sites/.gitkeep
+
+!php7.3
+php7.3/*
+!php7.3/Dockerfile
