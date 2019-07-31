@@ -225,3 +225,6 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
     ```
 	到這裡，等個5~30秒 (也可以查看一下 wp-proxy-letsencrypt 容器的 log，看它有沒有在運作，若等不及可以 restart 它，讓它重跑檢查)，檢查 /wp-proxy-companion/nginx/certs 目錄下有沒有對應網域的憑證檔，若有的話，就表示憑證已安裝成功了。
 9. 瀏覽器重整一下，應該看得到正常運行的新網站 (https)，資料庫裡的連結應該都還是 http，可以取代成 https。
+
+### 已知問題
+1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。

@@ -80,18 +80,21 @@ services:
     volumes:
       - ./sites/wp2/wordpress-core:/var/www/html:rw,cached
 
-  # 非 wp 的php網站設定
+  # php 網站設定 (apache 支援 rewrite 及安裝 PDO)
   phpweb:
-    image: php:7.3-apache
-    container_name: phpweb
+    build: ./php7.3
+    container_name: npowervote
     depends_on:
       - db
     volumes:
-      - ./sites/phpweb:/var/www/html/
+      - ./sites/phpweb/www:/var/www/html/
+      - ./sites/phpweb/apache2/sites-enabled:/etc/apache2/sites-enabled/
     environment:
       VIRTUAL_HOST: phpweb.test
-    stdin_open: true
-    tty: true
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    #stdin_open: true
+    #tty: true
 
   mailcatcher:
     image: schickling/mailcatcher
