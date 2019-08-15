@@ -137,7 +137,7 @@ sudo find ./目標目錄 -type f -print0 | xargs -0 sudo chmod 0644
 或
 ```
 sudo find ./目標目錄 -type d -exec chmod 0755 {} \;
-sudo find ./目標目錄 -type f -exec chmod 0664 {} \;
+sudo find ./目標目錄 -type f -exec chmod 0644 {} \;
 ```
 
 ### 其他工具
@@ -189,6 +189,18 @@ docker exec db容器名稱 env
 ```
 docker exec -it db容器名稱 mysql -uroot -p
 ```
+* 查看容器裡運行的 processes (也就是在容器裡下 top 指令)
+```
+docker container top 容器名稱
+```
+* 只查看 error logs:
+```
+docker logs 容器名稱 -f 1>/dev/null
+```
+* 只查看 access logs:
+```
+docker logs 容器名稱 -f 2>/dev/null
+```
 
 ### 備份
 
@@ -228,3 +240,4 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 
 ### 已知問題
 1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。
+1. wp-proxy (nginx) 容器的 logs 才能看到 real ip；而網站容器的 logs 只能看到內部 ip。
