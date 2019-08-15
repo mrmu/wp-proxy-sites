@@ -241,3 +241,8 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 ### 已知問題
 1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。
 1. wp-proxy (nginx) 容器的 logs 才能看到 real ip；而網站容器的 logs 只能看到內部 ip。
+1. 若遇到這種警告訊息，應該是在錯的目錄執行 docker-compose up 了，記得要在 docker-compose.yml 和 .env 設定檔都在的 wp-proxy-sites 目錄下執行： 
+    ```
+    WARNING: The MYSQL_ROOT_PASSWORD variable is not set. Defaulting to a blank string.
+    WARNING: The MYSQL_DATABASE variable is not set. Defaulting to a blank string.
+    ```
