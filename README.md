@@ -15,6 +15,8 @@
 * WP-Cli
 
 ### 安裝
+
+無論本機或正式環境：
 1. 確認已安裝並運行 [WP Proxy Companion]((https://github.com/mrmu/wp-proxy-companion))
 2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，建議可以和 WP Proxy Companion 放在同目錄。進入該目錄後 git clone 本 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
     ```
@@ -30,6 +32,7 @@
 
 ### 開發流程說明
 
+無論本機或正式環境：
 1. 如果你是第一次使用，建議把目標放在「先完成一個可運作的簡單 WP 網站」，之後就會覺得設定其實不複雜。
 2. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
 3. 建立網域指向：雖然現在 docker 還沒起來，不過先把網址指到目前這台主機，若是正式環境請建立 DNS A 指向；若是本機開發就把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.sample.yml 為例，若要建立3個網站容器，網域設定如下：
@@ -129,7 +132,9 @@ docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --no-deps
 
 * 要變更現有WP容器的PHP版本，可以修改 Image 來源，比如 wordpress:5.2.2-php7.3 改為 wordpress:5.0.1-php5.6，再重啟容器即可生效，WP 目錄下的檔案都不會更動。也因為 WP 目錄下的檔案都不會更動到，所以 wp 版本不會因此降到 5.0.1，除非是第一次運行，才會下載 WP 5.0.1 的檔案。
 
-* WP 底下目錄和檔案的權限設定，以目錄 755 及檔案 644 為建議，指令如下：
+* 若因為外掛或其他自製程式需要，要加裝其他 PHP Extension 或啟用 Apache Module，可另寫 Dockerfile，如本 repo 中的 php7.3 目錄下的 Dockerfile，然後再於 docker-compose.yml 裡使用「build: ./php7.3」取代 「image: 'php:7.3-apache'」。
+
+* WP 底下目錄和檔案的權限設定，以目錄 755 及檔案 644 為建議 ([官方建議在此](https://wordpress.org/support/article/changing-file-permissions/))，指令如下：
 ```
 sudo find ./目標目錄 -type d -print0 | xargs -0 sudo chmod 0755
 sudo find ./目標目錄 -type f -print0 | xargs -0 sudo chmod 0644
