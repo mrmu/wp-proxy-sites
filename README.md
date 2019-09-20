@@ -162,13 +162,17 @@ docker-compose run wp2-composer update
 ```
 docker ps -a
 ```
+* 重啟容器
+```
+docker restart [容器ID]
+```
 * 停止容器
 ```
-docker stop [容器名]
+docker stop [容器ID]
 ```
 * 移除容器
 ```
-docker rm [容器名]
+docker rm [容器ID]
 ```
 * 停止 docker-compose.yml 裡所有容器 (但沒有移除)
 ```
@@ -188,23 +192,23 @@ docker network ls
 ```
 * 查看 db 容器的密碼及相關資訊
 ```
-docker exec db容器名稱 env
+docker exec db容器ID env
 ```
 * 執行 db 容器內的 mysql 指令
 ```
-docker exec -it db容器名稱 mysql -uroot -p
+docker exec -it db容器ID mysql -uroot -p
 ```
 * 查看容器裡運行的 processes (也就是在容器裡下 top 指令)
 ```
-docker container top 容器名稱
+docker container top 容器ID
 ```
 * 只查看 error logs:
 ```
-docker logs 容器名稱 -f 1>/dev/null
+docker logs 容器ID -f 1>/dev/null
 ```
 * 只查看 access logs:
 ```
-docker logs 容器名稱 -f 2>/dev/null
+docker logs 容器ID -f 2>/dev/null
 ```
 
 ### 備份
@@ -226,25 +230,31 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 
 ### 搬家示例 Migration
 
-1. 打包好 wp-content (如 wp-content.tar.gz) 移到新機，資料庫 (如 db.sql.gz) 也備份好。
-2. 編輯 /wp-proxy-sites/docker-compose.yml，建立網站容器的設定，先不加 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
-3. 把網站容器跑起來：
+1. 打包好 wp-content (如 wp-content.tar.gz) 移到新機備用。
+1. 打包好資料庫 (如 db.sql.gz)，打包前注意：
+    1. 要先把網址取代成 http://，因為我們要先把 http 版本跑起來，才能加裝憑證。
+    1. 如果資料庫裡有網站根目錄的設定，要記得改為 /var/www/html。
+    1. 注意 WordPress 資料表前縐字 (Prefix) 新舊設定要一致，才不會出現安裝 WP 的畫面。
+1. 編輯 /wp-proxy-sites/docker-compose.yml，建立網站容器的設定，先不加或註解掉 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
+1. 把網站容器跑起來：
     ```
-	docker-compose up -d --no-deps --build 網站容器名
+	docker-compose up -d --no-deps --build 網站容器名稱
     ```
-	到這裡，新的網站目錄和新的WP檔案會被建立起來，nginx proxy 設定 (wp-proxy-companion/nginx/conf.d/default)也會準備好，對應的資料庫也會被建立 (但還是空的)
-4. 把之前打包好的 wp-content 和 資料庫都裝好，要先建立 http 版本，所以要注意資料庫的網址。
-5. 把網址指到新的IP，生效後瀏覽器應該看得到正常運行的新網站 (http)。(注意，若本來就是 HTTPS 版本的 WP 網站，這時會發生 500，因為還沒有對應的 nginx 設定及 SSL 憑證)
-7. 開始裝SSL憑證，打開 /wp-proxy-sites/docker-compose.yml，幫新的網站容器加上 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
-8. 重跑網站容器：
+	到這裡，新的網站目錄 (/wp-proxy-sites/sites/新站/) 和全新的WP檔案會被建立，對應的資料庫也會被建立 (但還是空的，因為還沒跑安裝)。好奇的話也可以看一下 nginx proxy 設定 (wp-proxy-companion/nginx/conf.d/default) 也都準備好指到網站容器裡的 Apache 了，
+1. 把之前打包好的 wp-content 備份都解壓放到新的網站目錄 (/wp-proxy-sites/sites/新站/)，並且把資料庫匯入到新主機的 db 容器。
+1. 要準備把網址指向新的IP，若要搬的是 HTTPS 的網站，怕在 「HTTP 版生效 -> 取得憑證 -> HTTPS 版生效」 的轉換過程中出現大破圖，可以先 rename index.php 成 _index.php，再建立 index.html 並把 index.html 佈置成維護公告頁。
+1. 開始把網址指到新的IP，生效後瀏覽器應該看得到正常運行的新網站 (http)。(注意，若還是用 https 的網址來觀看 HTTPS 版本的 WP 網站，這時會發生 500，因為現在容器裡還沒有對應的 nginx 設定及 SSL 憑證，建議一直要確實先讓 HTTP 版生效)
+1. 開始裝SSL憑證，打開 /wp-proxy-sites/docker-compose.yml，幫新的網站容器加上 LETSENCRYPT_HOST 和 LETSENCRYPT_EMAIL 設定。
+1. 重跑網站容器：
     ```
-	docker-compose up -d --no-deps --build 網站容器名
+	docker-compose up -d --no-deps --build 網站容器名稱
     ```
 	到這裡，等個5~30秒 (也可以查看一下 wp-proxy-letsencrypt 容器的 log，看它有沒有在運作，若等不及可以 restart 它，讓它重跑檢查)，檢查 /wp-proxy-companion/nginx/certs 目錄下有沒有對應網域的憑證檔，若有的話，就表示憑證已安裝成功了。
-9. 瀏覽器重整一下，應該看得到正常運行的新網站 (https)，資料庫裡的連結應該都還是 http，可以取代成 https。
+1. 瀏覽器重整一下，應該看得到正常運行的新網站 (https)，資料庫裡的連結應該都還是 http，可以取代成 https。
 
-### 已知問題
+### 常見問題
 1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。
+1. 503 Service Temporarily Unavailable：通常是網址請求對應不到 Server 裡的網址設定才會發生。請檢查 DNS 設定的網址與 yml 裡的 VIRTUAL_HOST 設定是否完全一致。
 1. wp-proxy (nginx) 容器的 logs 才能看到 real ip；而網站容器的 logs 只能看到內部 ip。
 1. 若遇到這種警告訊息，應該是在錯的目錄執行 docker-compose up 了，記得要在 docker-compose.yml 和 .env 設定檔都在的 wp-proxy-sites 目錄下執行： 
     ```
