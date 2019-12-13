@@ -20,6 +20,7 @@
 1. 確認已安裝並運行 [WP Proxy Companion]((https://github.com/mrmu/wp-proxy-companion))
 2. 找個目錄存放本設定和網站相關檔案，比如正式環境可以放 /var/docker-www/ (名稱隨你取) 或本機放 /Users/xxxx/，建議可以和 WP Proxy Companion 放在同目錄。進入該目錄後 git clone 本 repo。(看你有沒有其他慣放 Docker 設定的目錄也行)
     ```
+    cd /var/docker-www
     git clone https://github.com/mrmu/wp-proxy-sites.git
     ```
 3. 到這裡，你選定的目錄下會有 wp-proxy-companion 和 wp-proxy-sites 這兩個目錄，未來你的網站檔案都會在 wp-proxy-sites/sites 底下。
@@ -27,7 +28,7 @@
     ```
     sudo cp sample.env .env
     ```
-5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 Root 密碼及資料庫名稱，之後會成為 mySQL DB 容器的設定值。不過後續的 WP 容器只會使用到 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
+5. 修改 .env 裡面的 mySQL 資料庫設定，包含指定 <strong>Root 密碼及資料庫名稱</strong>，之後會成為 <strong> DB 容器的設定值，請一定要修改密碼 </strong>。後續的 WP 容器會使用到.env 裡設定的 Root 密碼並且另建各自的資料庫，這裡設定的資料庫不會使用到。
 
 
 ### 開發流程說明
@@ -35,12 +36,14 @@
 無論本機或正式環境：
 1. 如果你是第一次使用，建議把目標放在「先完成一個可運作的簡單 WP 網站」，之後就會覺得設定其實不複雜。
 2. 確認已先建立 wp-proxy network 並已啟用 wp proxy companion  (參考說明)
-3. 建立網域指向：雖然現在 docker 還沒起來，不過先把網址指到目前這台主機，若是正式環境請建立 DNS A 指向；若是本機開發就把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.sample.yml 為例，若要建立3個網站容器，網域設定如下：
-    ```
-    127.0.0.1       wp1.test
-    127.0.0.1       wp2.test
-    127.0.0.1       phpweb.test
-    ```
+3. 雖然現在 docker 還沒起來，不過要先把網址指到目前這台主機，若是...
+    * 正式環境：請建立 DNS A 指向主機 IP。
+    * 本機開發：把你要在本機建立的網域建立在 hosts 檔案上，以 mac 為例是編輯 /etc/hosts，以本repo 的docker-compose.sample.yml 為例，若要建立3個網站容器，本機的網域設定如下：
+        ```
+        127.0.0.1       wp1.test
+        127.0.0.1       wp2.test
+        127.0.0.1       phpweb.test
+        ```
 4. 開始設定 WP 網站容器，將 docker-compose.sample.yml 另存為 docker-compose.yml：
 	```
 	sudo cp docker-compose.sample.yml docker-compose.yml
