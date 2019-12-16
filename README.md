@@ -133,6 +133,12 @@ docker-compose -f docker-compose.yml -f docker-compose.local.yml down
 docker-compose -f docker-compose.yml -f docker-compose.local.yml up -d --no-deps --build 容器名稱
 ```
 
+* 如果要加入 www to non-www 的設定，可以在 VIRTUAL_HOST 加入 www 的設定，如：
+```
+VIRTUAL_HOST: audilu.com, www.audilu.com
+```
+如此 nginx-proxy 就會多生出一組設定。
+
 * 要變更現有WP容器的PHP版本，可以修改 Image 來源，比如 wordpress:5.2.2-php7.3 改為 wordpress:5.0.1-php5.6，再重啟容器即可生效，WP 目錄下的檔案都不會更動。也因為 WP 目錄下的檔案都不會更動到，所以 wp 版本不會因此降到 5.0.1，除非是第一次運行，才會下載 WP 5.0.1 的檔案。
 
 * 若因為外掛或其他自製程式需要，要加裝其他 PHP Extension 或啟用 Apache Module，可另寫 Dockerfile，如本 repo 中的 php7.3 目錄下的 Dockerfile，然後再於 docker-compose.yml 裡使用「build: ./php7.3」取代 「image: 'php:7.3-apache'」。
