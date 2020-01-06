@@ -17,5 +17,5 @@ php7.3/*
 !php7.3/Dockerfile
 
 !wp5.3-xsl
-wp5.3-xsl
+wp5.3-xsl/*
 !wp5.3-xsl/Dockerfile
