@@ -9,7 +9,7 @@
 
 ### 使用容器
 * MariaDB
-* WordPress/Apache/PHP 7.3
+* WordPress/Apache/PHP 7.x
 * Redis Cache Server：需搭配 Redis Object Cache 外掛使用
 * MailCatcher：獨立運作的容器，建議於本地端開發時使用。
 * WP-Cli
@@ -50,7 +50,7 @@
 	```
 	再打開 docker-compose.yml 修改。範例中對應的容器是 wp1，可以修改的部份：
 	1. 把 wp1 和 container_name 改為你要的網站代稱。 
-	2. image: 範例要安裝的是 [WordPress 官方的 docker image](https://hub.docker.com/_/wordpress/) (除了 wp 這個容器也自帶了 php7.3 和 apache)，你可以修改成你要的 image 版本。
+	2. image: 範例要安裝的是 [WordPress 官方的 docker image](https://hub.docker.com/_/wordpress/) (除了 wp 這個容器也自帶了 php 和 apache)，你可以修改成你要的 image 版本。
 	3. volumes: 把容器裡主要的目錄對應到指定的目錄，裡面的 wp1 也可修改成你要的代稱。
 	4. environment:
     	1. WORDPRESS_DB_NAME: wp容器要使用的資料庫名稱。
@@ -97,6 +97,15 @@
 
 * 最後定義了一個外部的 docker network 叫 wp-proxy，也就是與 wp proxy companion 連線的設定。
 
+### dockerfile 設定範例 (dockerfile-sample/)
+這裡有些設定範例，可以參考寫法。
+
+* dockerfile-sample/php7.3：如果要安裝純 PHP 環境，但想自行安裝 Ubuntu 套件或啟用 Apache module，可參考這個目錄下的 dockerfile，它額外安裝了 mysqli、pdo、pdo_mysql 並且啟用 apache rewrite module，剛好可以作為 Laravel 開發使用。
+
+* dockerfile-sample/wp5.3-xsl：如果要安裝 WP 環境，但想自行安裝 Ubuntu 套件，可參考這個目錄下的 dockerfile，它額外安裝了 xsl 套件，比如要安裝 Google XML sitemap 的外掛，就需要 ubuntu 有 xsl 套件。
+
+完成自訂的 Dockerfile 後，可於 docker-compose.yml 裡使用「build:」來取代原來的「image:」設定。如使用「build: ./dockerfile-sample/php7.3」取代掉 「image: 'php:7.3-apache'」。(但請另建目錄，不要直接使用 dockerfile-sample/)
+
 ### 其他說明
 
 * 關於改變 php.ini 的設定部份有兩種方式：
@@ -140,8 +149,6 @@ VIRTUAL_HOST: audilu.com, www.audilu.com
 如此 nginx-proxy 就會多生出一組設定。
 
 * 要變更現有WP容器的PHP版本，可以修改 Image 來源，比如 wordpress:5.2.2-php7.3 改為 wordpress:5.0.1-php5.6，再重啟容器即可生效，WP 目錄下的檔案都不會更動。也因為 WP 目錄下的檔案都不會更動到，所以 wp 版本不會因此降到 5.0.1，除非是第一次運行，才會下載 WP 5.0.1 的檔案。
-
-* 若因為外掛或其他自製程式需要，要加裝其他 PHP Extension 或啟用 Apache Module，可另寫 Dockerfile，如本 repo 中的 php7.3 目錄下的 Dockerfile，然後再於 docker-compose.yml 裡使用「build: ./php7.3」取代 「image: 'php:7.3-apache'」。
 
 * WP 底下目錄和檔案的權限設定，以目錄 755 及檔案 644 為建議 ([官方建議在此](https://wordpress.org/support/article/changing-file-permissions/))，指令如下：
 ```

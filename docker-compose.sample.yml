@@ -18,7 +18,7 @@ services:
       - db
       - redis
     container_name: wp1
-    image: wordpress:5.2.2-php7.3
+    image: wordpress:5.4.2-php7.4
     restart: unless-stopped
     volumes:
       - ./sites/wp1/wordpress:/var/www/html
@@ -48,7 +48,7 @@ services:
     depends_on:
       - db
     container_name: wp2
-    image: wordpress:5.2.2-php7.3
+    image: wordpress:5.4.2-php7.4
     restart: unless-stopped
     volumes:
       - ./sites/wp2/wordpress:/var/www/html
@@ -80,10 +80,10 @@ services:
     volumes:
       - ./sites/wp2/wordpress-core:/var/www/html:rw,cached
 
-  # php 網站設定 (apache 支援 rewrite 及安裝 PDO)
+  # php 網站設定 (apache 支援 rewrite 及安裝 PDO，與 Laravel 環境相容)
   phpweb:
-    build: ./php7.3
-    container_name: npowervote
+    build: ./dockerfile-sample/php7.3
+    container_name: phpweb
     depends_on:
       - db
     volumes:
