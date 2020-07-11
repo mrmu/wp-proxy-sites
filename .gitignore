@@ -12,10 +12,12 @@ db/*
 sites/*
 !sites/.gitkeep
 
-!php7.3
-php7.3/*
-!php7.3/Dockerfile
+!dockerfiles-sample
+dockerfiles-sample/*
+!dockerfiles-sample/php7.3
+dockerfiles-sample/php7.3/*
+!dockerfiles-sample/php7.3/Dockerfile
 
-!wp5.3-xsl
-wp5.3-xsl/*
-!wp5.3-xsl/Dockerfile
+!dockerfiles-sample/wp5.3-xsl
+dockerfiles-sample/wp5.3-xsl/*
+!dockerfiles-sample/wp5.3-xsl/Dockerfile
