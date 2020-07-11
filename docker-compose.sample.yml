@@ -29,6 +29,7 @@ services:
       WORDPRESS_DB_NAME: wp1
       WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD} 
       WORDPRESS_TABLE_PREFIX: wp1_
+      WORDPRESS_DEBUG: 0
       VIRTUAL_HOST: wp1.test
       LETSENCRYPT_HOST: wp1.test
       LETSENCRYPT_EMAIL: my@email.adds
@@ -49,6 +50,7 @@ services:
       - db
     container_name: wp2
     image: wordpress:5.4.2-php7.4
+    # build: ./dockerfiles-sample/wp5.4-xdebug
     restart: unless-stopped
     volumes:
       - ./sites/wp2/wordpress:/var/www/html
@@ -59,6 +61,15 @@ services:
       WORDPRESS_DB_NAME: wp2
       WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD} 
       WORDPRESS_TABLE_PREFIX: wp2_
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_CONFIG_EXTRA: |
+        // Enable Debug logging to the /wp-content/debug.log file
+        define( 'WP_DEBUG_LOG', true );
+        // Disable display of errors and warnings
+        define( 'WP_DEBUG_DISPLAY', false );
+        define( 'SCRIPT_DEBUG', true );
+        @ini_set( 'display_errors', 0 );
+      # XDEBUG_CONFIG: remote_host=wp2.test
       VIRTUAL_HOST: wp2.test
       # LETSENCRYPT_HOST: wp2.test
       # LETSENCRYPT_EMAIL: my@email.adds

@@ -21,3 +21,7 @@ dockerfiles-sample/php7.3/*
 !dockerfiles-sample/wp5.3-xsl
 dockerfiles-sample/wp5.3-xsl/*
 !dockerfiles-sample/wp5.3-xsl/Dockerfile
+
+!dockerfiles-sample/wp5.4-xdebug
+dockerfiles-sample/wp5.4-xdebug/*
+!dockerfiles-sample/wp5.4-xdebug/Dockerfile
