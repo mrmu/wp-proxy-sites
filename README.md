@@ -270,6 +270,7 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 
 ### 常見問題
 1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。
+1. 如果出現 502 bad gateway，請先檢查 ./wp-proxy-companion/nginx/conf.d/default 裡有沒有對應到 wp-proxy-sites/docker-compose.yml 裡定義的網站容器網址，若沒有就要檢查 yml 裡該網站容器的 volumn 是否有正確設定對應到 /var/www/html/。若還是 502，要檢查 ./wp-proxy-sites/docker-compose.yml 的 docker network 設定與 companion 是否一致，可用 docker network ls 看有沒有異常。
 1. 503 Service Temporarily Unavailable：通常是網址請求對應不到 Server 裡的網址設定才會發生。請檢查 DNS 設定的網址與 yml 裡的 VIRTUAL_HOST 設定是否完全一致。
 1. wp-proxy (nginx) 容器的 logs 才能看到 real ip；而網站容器的 logs 只能看到內部 ip。
 1. 若遇到這種警告訊息，應該是在錯的目錄執行 docker-compose up 了，記得要在 docker-compose.yml 和 .env 設定檔都在的 wp-proxy-sites 目錄下執行： 
