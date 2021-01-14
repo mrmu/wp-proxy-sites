@@ -272,6 +272,7 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 1. 400 Bad Request：檢查網站容器的環境變數 VIRTUAL_HOST (網址)，避免使用特殊底線，如 "_"。
 1. 如果出現 502 bad gateway，請先檢查 ./wp-proxy-companion/nginx/conf.d/default 裡有沒有對應到 wp-proxy-sites/docker-compose.yml 裡定義的網站容器網址，若沒有就要檢查 yml 裡該網站容器的 volumn 是否有正確設定對應到 /var/www/html/。若還是 502，要檢查 ./wp-proxy-sites/docker-compose.yml 的 docker network 設定與 companion 是否一致，可用 docker network ls 看有沒有異常。
 1. 503 Service Temporarily Unavailable：通常是網址請求對應不到 Server 裡的網址設定才會發生。請檢查 DNS 設定的網址與 yml 裡的 VIRTUAL_HOST 設定是否完全一致。
+1. 如果有用到「主網域」和其「子網域」的設定，在 yaml 檔裡請先放置主網域的設定，否則 docker-gen 可能會在設定完子網域的 conf 後就略過建立或更新主網域的 conf，造成 503 的問題。
 1. 如果懷疑設定有被 cache 住，可以刪掉 docker image 讓它重抓重建，但記得要先停掉 container：
     ```
     	docker images
