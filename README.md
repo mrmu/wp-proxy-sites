@@ -108,6 +108,12 @@
 
 ### 其他說明
 
+* 在 yaml 裡設定 /etc/hosts：
+        ```
+        extra_hosts:
+        members.xxx.xx: 10.1.4.xxx
+        dev.members.xxx.xx: 10.1.4.xxx
+        ```
 * 關於改變 php.ini 的設定部份有兩種方式：
     1. 增加 uploads.ini：wp 容器裡 volume 有個 conf.d/uploads.ini 的設定 (已註解掉)，如果沒有預先建立好 uploads.ini，docker 會建立一個空目錄叫 uploads.ini，可以把這個空目錄刪除，再建立一個真的 uploads.ini 來改變上傳檔案的限制，參考內容如下：
         ```
