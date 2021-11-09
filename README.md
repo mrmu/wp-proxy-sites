@@ -290,3 +290,8 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
     WARNING: The MYSQL_ROOT_PASSWORD variable is not set. Defaulting to a blank string.
     WARNING: The MYSQL_DATABASE variable is not set. Defaulting to a blank string.
     ```
+1. docker-compose 成功建立容器但會一直出現 Error establishing a database connection (建立資料庫連線時發生錯誤)：有可能是 mysql 行程佔用或鎖住，先以  docker-compose down 停用所有容器，接著尋找 mysql 行程並刪除之，再分別重建容器試試 (docker-compo up) :
+    ```
+    ps -auxwf -f | grep mysql // 尋找mysql行程
+    kill -9 {mysql的PID} // 刪除 mysql
+    ```
