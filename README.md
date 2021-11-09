@@ -281,7 +281,7 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
 1. 如果有用到「主網域」和其「子網域」的設定，在 yaml 檔裡請先放置主網域的設定，否則 docker-gen 可能會在設定完子網域的 conf 後就略過建立或更新主網域的 conf，造成 503 的問題。
 1. 如果懷疑設定有被 cache 住，可以刪掉 docker image 讓它重抓重建，但記得要先停掉 container：
     ```
-    	docker images
+    docker images
 	docker rmi {image名字}
     ```
 1. wp-proxy (nginx) 容器的 logs 才能看到 real ip；而網站容器的 logs 只能看到內部 ip。
@@ -292,6 +292,6 @@ docker exec -i db /usr/bin/mysql -u root -p{root_password} {database_name} < bac
     ```
 1. docker-compose 成功建立容器但會一直出現 Error establishing a database connection (建立資料庫連線時發生錯誤)：有可能是 mysql 行程佔用或鎖住，先以  docker-compose down 停用所有容器，接著尋找 mysql 行程並刪除之，再分別重建容器試試 (docker-compo up) :
     ```
-    ps -auxwf -f | grep mysql // 尋找mysql行程
-    kill -9 {mysql的PID} // 刪除 mysql
+    ps -auxwf -f | grep mysql // 尋找 mysql行程
+    kill -9 {mysql的PID} // 刪除 mysql
     ```
