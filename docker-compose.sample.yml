@@ -93,7 +93,7 @@ services:
 
   # php 網站設定 (apache 支援 rewrite 及安裝 PDO，與 Laravel 環境相容)
   phpweb:
-    build: ./dockerfile-sample/php7.3
+    build: ./dockerfiles-sample/php7.3
     container_name: phpweb
     depends_on:
       - db
